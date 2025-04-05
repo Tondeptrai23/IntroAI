@@ -1,0 +1,37 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Pacman specific files
+frames/          # Generated frames for animations
+*.ps             # PostScript files that might be generated
+search_log_*.txt # Search logs if your implementation generates them
+
+# OS specific files
+.DS_Store        # macOS
+Thumbs.db        # Windows
+desktop.ini      # Windows
+
+# Any saved game states or autosave files
+*.save
+*.autosave
+
+# Logs
+*.log
