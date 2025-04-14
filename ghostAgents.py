@@ -79,30 +79,3 @@ class DirectionalGhost( GhostAgent ):
         for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
         dist.normalize()
         return dist
-
-class LeftMoveOnlyGhost(GhostAgent):
-    """A ghost that always tries to move left (West) when possible."""
-    def __init__(self, index):
-        self.index = index
-
-    def getDistribution(self, state):
-        dist = util.Counter()
-        legalActions = state.getLegalActions(self.index)
-        
-        # Ensure we have legal actions
-        if not legalActions:
-            return dist
-        
-        # Prefer WEST (left) if possible
-        if Directions.WEST in legalActions:
-            dist[Directions.WEST] = 1.0
-        else:
-            # If we can't move left, distribute probability uniformly
-            for action in legalActions:
-                dist[action] = 1.0
-            
-            # Make sure we have actions before normalizing
-            if legalActions:
-                dist.normalize()
-        
-        return dist

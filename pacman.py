@@ -642,9 +642,12 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         else:
             gameDisplay = display
             rules.quiet = False
-        import ghostAgents
-        ghosts = [ghostAgents.LeftMoveOnlyGhost(1)]
+
+        # ================================= CHOOSE GHOST HERE ==========================================
+        import searchAgents
+        ghosts = [searchAgents.LeftMoveOnlyGhost(1)]
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
+
         game.run()
         if not beQuiet: games.append(game)
 
