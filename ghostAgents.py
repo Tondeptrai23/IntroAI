@@ -42,17 +42,6 @@ class RandomGhost( GhostAgent ):
         dist.normalize()
         return dist
     
-class FixedGhost( GhostAgent ):
-    "A ghost that chooses a fixed action."
-    def __init__( self, index, action ):
-        self.index = index
-        self.action = action
-
-    def getDistribution( self, state ):
-        dist = util.Counter()
-        dist[self.action] = 1.0
-        return dist
-
 class DirectionalGhost( GhostAgent ):
     "A ghost that prefers to rush Pacman, or flee when scared."
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
@@ -89,4 +78,31 @@ class DirectionalGhost( GhostAgent ):
         for a in bestActions: dist[a] = bestProb / len(bestActions)
         for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
         dist.normalize()
+        return dist
+
+class LeftMoveOnlyGhost(GhostAgent):
+    """A ghost that always tries to move left (West) when possible."""
+    def __init__(self, index):
+        self.index = index
+
+    def getDistribution(self, state):
+        dist = util.Counter()
+        legalActions = state.getLegalActions(self.index)
+        
+        # Ensure we have legal actions
+        if not legalActions:
+            return dist
+        
+        # Prefer WEST (left) if possible
+        if Directions.WEST in legalActions:
+            dist[Directions.WEST] = 1.0
+        else:
+            # If we can't move left, distribute probability uniformly
+            for action in legalActions:
+                dist[action] = 1.0
+            
+            # Make sure we have actions before normalizing
+            if legalActions:
+                dist.normalize()
+        
         return dist

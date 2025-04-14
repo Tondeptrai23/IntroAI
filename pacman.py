@@ -610,7 +610,7 @@ def loadAgent(pacman, nographics):
 def replayGame( layout, actions, display ):
     import ghostAgents
     rules = ClassicGameRules()
-    agents = [ghostAgents.FixedGhost(i+1) for i in range(layout.getNumGhosts())]
+    agents = [ghostAgents.LeftMoveOnlyGhost(0) + ghostAgents.FixedGhost(1) + ghostAgents.FixedGhost(2) + ghostAgents.FixedGhost(3)]
     game = rules.newGame( layout, agents[0], agents[1:], display )
     state = game.state
     display.initialize(state.data)
@@ -642,6 +642,8 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         else:
             gameDisplay = display
             rules.quiet = False
+        import ghostAgents
+        ghosts = [ghostAgents.LeftMoveOnlyGhost(1)]
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
         game.run()
         if not beQuiet: games.append(game)
