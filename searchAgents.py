@@ -15,84 +15,6 @@ class SearchGhostAgent(GhostAgent):
     """A base class for ghosts that use search algorithms."""
     
     def __init__(self, index):
-        super().__init__(index)
-        self.expanded = set()  # Set to store expanded nodes
-        self.expanded_count = 0  # Counter for expanded nodes
-        self.search_time = 0  # Search time in seconds
-        self.memory_usage = 0  # Memory usage in bytes
-        self.search_complete = False  # Flag to indicate if search is complete
-        
-    def getAction(self, state):
-        """Get action based on search algorithm"""
-        # Only run the full search if we haven't completed it yet
-        if not self.search_complete:
-            # Start measuring time and memory
-            tracemalloc.start()
-            start_time = time.time()
-            
-            # Get the action distribution based on the search algorithm
-            dist = self.getDistribution(state)
-            
-            # Stop measuring time and memory
-            end_time = time.time()
-            current, peak = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-            
-            # Record metrics
-            self.search_time = end_time - start_time
-            self.memory_usage = peak  # Peak memory usage in bytes
-            
-            # Display metrics (only once at the end of search)
-            self.displayMetrics()
-            
-            # Display expanded cells
-            self.displayExpandedCells(state)
-            
-            # Mark search as complete
-            self.search_complete = True
-            
-            # Choose action from distribution
-            if len(dist) == 0:
-                return Directions.STOP
-            else:
-                return util.chooseFromDistribution(dist)
-        else:
-            # If search is already complete, just use the normal getDistribution
-            dist = self.getDistribution(state)
-            if len(dist) == 0:
-                return Directions.STOP
-            else:
-                return util.chooseFromDistribution(dist)
-            
-    def displayMetrics(self):
-        """Display metrics: search time, memory usage, expanded nodes"""
-        print("\n" + "="*50)
-        print(f"SEARCH COMPLETE - METRICS")
-        print(f"Search time: {self.search_time:.6f} seconds")
-        print(f"Memory usage: {self.memory_usage / 1024:.2f} KB")
-        print(f"Expanded nodes: {self.expanded_count}")
-        print(f"Total nodes explored: {len(self.expanded)}")
-        print("="*50 + "\n")
-        
-    def displayExpandedCells(self, state):
-        """Display expanded cells on the UI"""
-        # Connect to the display to show expanded cells
-        import __main__
-        if '_display' in dir(__main__):
-            if 'drawExpandedCells' in dir(__main__._display): #@UndefinedVariable
-                __main__._display.drawExpandedCells(self.expanded) #@UndefinedVariable
-        
-    def addToExpanded(self, node):
-        """Add a node to the expanded set"""
-        if node not in self.expanded:
-            self.expanded.add(node)
-            self.expanded_count += 1
-
-
-class LeftMoveOnlyGhost(GhostAgent):
-    """A ghost that always tries to move left (West) when possible and tracks metrics."""
-    
-    def __init__(self, index):
         GhostAgent.__init__(self, index)
         self._visited = {}  # Dictionary to track visited positions
         self._visitedlist = []  # List of visited positions for display
@@ -131,27 +53,7 @@ class LeftMoveOnlyGhost(GhostAgent):
             return Directions.STOP
         else:
             return util.chooseFromDistribution(dist)
-    
-    def getDistribution(self, state):
-        """Get the distribution over actions."""
-        dist = util.Counter()
-        legalActions = state.getLegalActions(self.index)
         
-        # Remove STOP action if present
-        if Directions.STOP in legalActions:
-            legalActions.remove(Directions.STOP)
-        
-        # Prefer WEST (left) if possible
-        if Directions.WEST in legalActions:
-            dist[Directions.WEST] = 1.0
-        else:
-            # If we can't move left, pick randomly among other legal actions
-            for action in legalActions:
-                dist[action] = 1.0
-            dist.normalize()
-        
-        return dist
-    
     def printMetrics(self):
         """Calculate and print search metrics."""
         if self.metrics_printed:
@@ -188,3 +90,56 @@ class LeftMoveOnlyGhost(GhostAgent):
         # Ensure metrics are printed at the end of the game if not already
         if not self.metrics_printed:
             self.printMetrics()
+
+
+class LeftMoveOnlyGhost(SearchGhostAgent):
+    """A ghost that always tries to move left (West) when possible and tracks metrics."""
+    
+    def __init__(self, index):
+        super().__init__(index)
+    
+    def getDistribution(self, state):
+        """Get the distribution over actions."""
+        dist = util.Counter()
+        legalActions = state.getLegalActions(self.index)
+        
+        # Remove STOP action if present
+        if Directions.STOP in legalActions:
+            legalActions.remove(Directions.STOP)
+        
+        # Prefer WEST (left) if possible
+        if Directions.WEST in legalActions:
+            dist[Directions.WEST] = 1.0
+        else:
+            # If we can't move left, pick randomly among other legal actions
+            for action in legalActions:
+                dist[action] = 1.0
+            dist.normalize()
+        
+        return dist
+
+class RightMoveOnlyGhost(SearchGhostAgent):
+    """A ghost that always tries to move right (East) when possible and tracks metrics."""
+    
+    def __init__(self, index):
+        super().__init__(index)
+    
+    def getDistribution(self, state):
+        """Get the distribution over actions."""
+        dist = util.Counter()
+        legalActions = state.getLegalActions(self.index)
+        
+        # Remove STOP action if present
+        if Directions.STOP in legalActions:
+            legalActions.remove(Directions.STOP)
+        
+        # Prefer EAST (right) if possible
+        if Directions.EAST in legalActions:
+            dist[Directions.EAST] = 1.0
+        else:
+            # If we can't move right, pick randomly among other legal actions
+            for action in legalActions:
+                dist[action] = 1.0
+            dist.normalize()
+        
+        return dist
