@@ -555,8 +555,8 @@ class PacmanGraphics:
         Draws an overlay of expanded grid positions for search agents
         """
         n = float(len(cells))
-        baseColor = [1.0, 0.0, 0.0]
-        self.clearExpandedCells()
+        baseColor = [1.0, 1.0, 0.0]
+        # self.clearExpandedCells()
         self.expandedCells = []
         for k, cell in enumerate(cells):
             screenPos = self.to_screen( cell)

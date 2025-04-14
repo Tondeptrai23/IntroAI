@@ -645,7 +645,7 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
 
         # ================================= CHOOSE GHOST HERE ==========================================
         import searchAgents
-        ghosts = [searchAgents.LeftMoveOnlyGhost(1)]
+        ghosts = [searchAgents.LeftMoveOnlyGhost(1), searchAgents.RightMoveOnlyGhost(2)]
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
 
         game.run()
