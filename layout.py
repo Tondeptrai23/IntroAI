@@ -111,7 +111,7 @@ class Layout:
                 layoutChar = layoutText[maxY - y][x]
                 self.processLayoutChar(x, y, layoutChar)
         self.agentPositions.sort()
-        self.agentPositions = [ ( i == 0, pos) for i, pos in self.agentPositions]
+        self.agentPositions = [ ( i, pos) for i, pos in self.agentPositions]
 
     def processLayoutChar(self, x, y, layoutChar):
         if layoutChar == '%':
