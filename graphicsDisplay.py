@@ -32,12 +32,6 @@ SCORE_COLOR = formatColor(.9, .9, .9)
 PACMAN_OUTLINE_WIDTH = 2
 PACMAN_CAPTURE_OUTLINE_WIDTH = 4
 
-GHOST_COLORS = []
-GHOST_COLORS.append(formatColor(0,.3,.9))    # Blue
-GHOST_COLORS.append(formatColor(1.0,0.6,0.8)) # Pink
-GHOST_COLORS.append(formatColor(.98,.41,.07)) # Orange
-GHOST_COLORS.append(formatColor(.9,0,0))     # Red
-
 TEAM_COLORS = GHOST_COLORS[:2]
 
 GHOST_SHAPE = [
@@ -213,7 +207,7 @@ class PacmanGraphics:
                 image = self.drawPacman(agent, index)
                 self.agentImages.append( (agent, image) )
             else:
-                image = self.drawGhost(agent, index)
+                image = self.drawGhost(agent, index, agent.color)
                 self.agentImages.append( (agent, image) )
         refresh()
 
@@ -240,7 +234,7 @@ class PacmanGraphics:
         if agentState.isPacman:
             self.animatePacman(agentState, prevState, prevImage)
         else:
-            self.moveGhost(agentState, agentIndex, prevState, prevImage)
+            self.moveGhost(agentState, agentState.color, prevState, prevImage)
         self.agentImages[agentIndex] = (agentState, prevImage)
 
         if newState._foodEaten != None:
@@ -331,7 +325,7 @@ class PacmanGraphics:
             adjustedIndex = ghostIndex - 1 if ghostIndex > 0 else 0
             return GHOST_COLORS[adjustedIndex]
 
-    def drawGhost(self, ghost, agentIndex):
+    def drawGhost(self, ghost, agentIndex, color):
         pos = self.getPosition(ghost)
         dir = self.getDirection(ghost)
         (screen_x, screen_y) = (self.to_screen(pos) )
@@ -339,8 +333,8 @@ class PacmanGraphics:
         for (x, y) in GHOST_SHAPE:
             coords.append((x*self.gridSize*GHOST_SIZE + screen_x, y*self.gridSize*GHOST_SIZE + screen_y))
 
-        colour = self.getGhostColor(ghost, agentIndex)
-        body = polygon(coords, colour, filled = 1)
+        # colour = self.getGhostColor(ghost, agentIndex)
+        body = polygon(coords, color, filled = 1)
         WHITE = formatColor(1.0, 1.0, 1.0)
         BLACK = formatColor(0.0, 0.0, 0.0)
 
@@ -384,7 +378,7 @@ class PacmanGraphics:
         moveCircle(eyes[2],(screen_x+self.gridSize*GHOST_SIZE*(-0.3+dx), screen_y-self.gridSize*GHOST_SIZE*(0.3-dy)), self.gridSize*GHOST_SIZE*0.08)
         moveCircle(eyes[3],(screen_x+self.gridSize*GHOST_SIZE*(0.3+dx), screen_y-self.gridSize*GHOST_SIZE*(0.3-dy)), self.gridSize*GHOST_SIZE*0.08)
 
-    def moveGhost(self, ghost, ghostIndex, prevGhost, ghostImageParts):
+    def moveGhost(self, ghost, ghostColor, prevGhost, ghostImageParts):
         old_x, old_y = self.to_screen(self.getPosition(prevGhost))
         new_x, new_y = self.to_screen(self.getPosition(ghost))
         delta = new_x - old_x, new_y - old_y
@@ -393,12 +387,7 @@ class PacmanGraphics:
             move_by(ghostImagePart, delta)
         refresh()
 
-        if ghost.scaredTimer > 0:
-            color = SCARED_COLOR
-        else:
-            adjustedIndex = ghostIndex - 1 if ghostIndex > 0 else 0
-            color = GHOST_COLORS[adjustedIndex]
-        edit(ghostImageParts[0], ('fill', color), ('outline', color))
+        edit(ghostImageParts[0], ('fill', ghostColor), ('outline', ghostColor))
         self.moveEyes(self.getPosition(ghost), self.getDirection(ghost), ghostImageParts[-4:])
         refresh()
 
@@ -566,8 +555,8 @@ class PacmanGraphics:
         Draws an overlay of expanded grid positions for search agents
         """
         n = float(len(cells))
-        baseColor = [1.0, 0.0, 0.0]
-        self.clearExpandedCells()
+        baseColor = [1.0, 1.0, 0.0]
+        # self.clearExpandedCells()
         self.expandedCells = []
         for k, cell in enumerate(cells):
             screenPos = self.to_screen( cell)

@@ -36,6 +36,12 @@ _canvas_tserifs = 0
 def formatColor(r, g, b):
     return '#%02x%02x%02x' % (int(r * 255), int(g * 255), int(b * 255))
 
+GHOST_COLORS = []
+GHOST_COLORS.append(formatColor(0,.3,.9))    # Blue
+GHOST_COLORS.append(formatColor(1.0,0.6,0.8)) # Pink
+GHOST_COLORS.append(formatColor(.98,.41,.07)) # Orange
+GHOST_COLORS.append(formatColor(.9,0,0))     # Red
+
 def colorToVector(color):
     return map(lambda x: int(x, 16) / 256.0, [color[1:3], color[3:5], color[5:7]])
 
@@ -145,7 +151,7 @@ def end_graphics():
     global _root_window, _canvas, _mouse_enabled
     try:
         try:
-            sleep(1)
+            sleep(10)
             if _root_window != None:
                 _root_window.destroy()
         except SystemExit as e:

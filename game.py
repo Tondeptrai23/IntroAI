@@ -20,6 +20,7 @@
 # John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
+from graphicsUtils import GHOST_COLORS
 from util import *
 import time, os
 import traceback
@@ -122,10 +123,11 @@ class AgentState:
     AgentStates hold the state of an agent (configuration, speed, scared, etc).
     """
 
-    def __init__( self, startConfiguration, isPacman ):
+    def __init__( self, startConfiguration, isPacman, color ):
         self.start = startConfiguration
         self.configuration = startConfiguration
         self.isPacman = isPacman
+        self.color = color
         self.scaredTimer = 0
         self.numCarrying = 0
         self.numReturned = 0
@@ -145,7 +147,7 @@ class AgentState:
         return hash(hash(self.configuration) + 13 * hash(self.scaredTimer))
 
     def copy( self ):
-        state = AgentState( self.start, self.isPacman )
+        state = AgentState(self.start, self.isPacman, self.color)
         state.configuration = self.configuration
         state.scaredTimer = self.scaredTimer
         state.numCarrying = self.numCarrying
@@ -497,11 +499,11 @@ class GameStateData:
 
         self.agentStates = []
         numGhosts = 0
-        for isPacman, pos in layout.agentPositions:
-            if not isPacman:
+        for index, pos in layout.agentPositions:
+            if index != 0:
                 if numGhosts == numGhostAgents: continue # Max ghosts reached already
                 else: numGhosts += 1
-            self.agentStates.append( AgentState( Configuration( pos, Directions.STOP), isPacman) )
+            self.agentStates.append( AgentState( Configuration( pos, Directions.STOP), index == 0, GHOST_COLORS[index - 1]) )
         self._eaten = [False for a in self.agentStates]
 
 try:
