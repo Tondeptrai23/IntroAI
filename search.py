@@ -95,7 +95,6 @@ class AStarGhost(SearchGhostAgent):
                 legalActions = Actions.getPossibleActions(
                     Configuration(currentPosition, Directions.STOP), walls
                 )
-            print(legalActions)
             for action in legalActions:
                 dx, dy = Actions.directionToVector(action)
                 nextPosition = (int(currentPosition[0] + dx), int(currentPosition[1] + dy))
