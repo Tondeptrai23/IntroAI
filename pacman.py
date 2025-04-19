@@ -382,7 +382,7 @@ class GhostRules:
     """
     These functions dictate how ghosts interact with their environment.
     """
-    GHOST_SPEED=0.5
+    GHOST_SPEED=1
     def getLegalActions( state, ghostIndex ):
         """
         Ghosts cannot stop, and cannot turn around unless they
@@ -645,7 +645,7 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
 
         # ================================= CHOOSE GHOST HERE ==========================================
         import searchAgents
-        ghosts = [searchAgents.LeftMoveOnlyGhost(1), searchAgents.RightMoveOnlyGhost(2)]
+        ghosts = [searchAgents.DFSGhost(1)]
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
 
         game.run()

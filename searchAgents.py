@@ -1,223 +1,242 @@
-# Modified searchAgents.py
-import time
+# searchAgents.py
+# ---------------
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+# 
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+
+"""
+This file contains all of the agents that can be selected to control Pacman.  To
+select an agent, use the '-p' option when running pacman.py.  Arguments can be
+passed to your agent using '-a'.  For example, to load a SearchAgent that uses
+depth first search (dfs), run the following command:
+
+> python pacman.py -p SearchAgent -a fn=depthFirstSearch
+
+Commands to invoke other search strategies can be found in the project
+description.
+
+Please only change the parts of the file you are asked to.  Look for the lines
+that say
+
+"*** YOUR CODE HERE ***"
+
+The parts you fill in start about 3/4 of the way down.  Follow the project
+description for details.
+
+Good luck and happy searching!
+"""
+
+from game import Directions
 from game import Agent
 from game import Actions
-from game import Directions
-import random
 from ghostAgents import GhostAgent
-from util import manhattanDistance
 import util
+import time
+import search
 import sys
 
 class SearchGhostAgent(GhostAgent):
-    """A base class for ghosts that use search algorithms."""
+    """
+    This ghost agent finds a path using a supplied search algorithm for a 
+    supplied search problem, then returns a distribution over actions to follow that path.
     
-    def __init__(self, index):
+    This follows the same pattern as Berkeley's SearchAgent but adapted for ghosts.
+    """
+
+    def __init__(self, index, fn='depthFirstSearch', prob='GhostPositionSearchProblem', heuristic='nullHeuristic'):
         GhostAgent.__init__(self, index)
-        self._visited = {}  # Dictionary to track visited positions
-        self._visitedlist = []  # List of visited positions for display
-        self._expanded = 0  # Counter for expanded nodes
-        self.start_time = time.time()  # Start time for tracking search time
-        self.metrics_printed = False  # Flag to ensure metrics are only printed once
         
-        # New variables for path planning
-        self.path_computed = False
-        self.path = []  # Will store the computed path
-        self.current_path_index = 0
-    
-    def registerInitialState(self, state):
-        """Called at the beginning of a game. Compute the path here."""
-        # Optional: Initialize anything specific for the algorithm
-        pass
-    
-    def findPathToPacman(self, state):
+        # Get the search function from the name and heuristic
+        if fn not in dir(search):
+            raise AttributeError(fn + ' is not a search function in search.py.')
+        func = getattr(search, fn)
+        self.searchFunction = func
+
+        # Get the search problem type from the name
+        if prob not in globals().keys() or not prob.endswith('Problem'):
+            raise AttributeError(prob + ' is not a search problem type in SearchAgents.py.')
+        self.searchType = globals()[prob]
+        print(f'[SearchGhostAgent] using problem type {prob}')
+        
+        # For metrics tracking
+        self.searchTime = 0
+        self.memoryUsage = 0
+        self.expanded = 0
+        self.visitedPositions = []
+        self.visited = []
+
+    def displayMetrics(self):
         """
-        Compute a path to Pacman using the specific search algorithm.
-        This should be implemented by subclasses.
+        Display the performance metrics of the search.
         """
-        util.raiseNotDefined()
-    
-    def getAction(self, state):
-        """Get the action to take based on the state."""
-        # Get the current position and pacman position
-        ghostPos = state.getGhostPosition(self.index)
-        pacmanPos = state.getPacmanPosition()
-        
-        # If we haven't computed a path yet, or Pacman has moved significantly, recompute
-        if not self.path_computed or (self.path and self.current_path_index >= len(self.path)):
-            # Start timing and reset tracking
-            if not self.metrics_printed:
-                self.start_time = time.time()
-                self._visited = {}
-                self._visitedlist = []
-                self._expanded = 0
-            
-            # Compute the path
-            self.path = self.findPathToPacman(state)
-            self.path_computed = True
-            self.current_path_index = 0
-            
-            # Print metrics after path computation
-            if not self.metrics_printed:
-                self.printMetrics()
-            
-            # Visualize the computed path
-            self.visualizePath(state)
-        
-        # Follow the computed path
-        if self.path and self.current_path_index < len(self.path):
-            action = self.path[self.current_path_index]
-            self.current_path_index += 1
-            return action
-        
-        # Fallback if path is empty or exhausted
-        dist = self.getDistribution(state)
-        if len(dist) == 0:
-            return Directions.STOP
-        else:
-            return util.chooseFromDistribution(dist)
-    
-    def visualizePath(self, state):
-        """
-        Visualize the computed path clearly before the ghost starts moving.
-        """
-        # This method can be enhanced with specific visualization code
-        # For now, we'll just draw the expanded cells for reference
-        self.drawExpandedCells()
-        
-        # Optional: can be extended to draw a clear path on the game board
-        # using a different color or visualization technique
-    
-    def getDistribution(self, state):
-        """
-        Gets distribution over actions. This method should be overridden by
-        subclasses to implement specific search algorithms.
-        """
-        util.raiseNotDefined()
-        
-    def printMetrics(self):
-        """Calculate and print search metrics."""
-        if self.metrics_printed:
-            return
-            
-        self.metrics_printed = True
-        
-        # Search time
-        elapsed_time = time.time() - self.start_time
-        
-        # Memory usage estimate
-        memory_usage = sys.getsizeof(self._visited) + sys.getsizeof(self._visitedlist)
-        for pos in self._visitedlist:
-            memory_usage += sys.getsizeof(pos)
-        
-        # Print metrics
         print("\n" + "=" * 50)
-        print("SEARCH COMPLETED - METRICS:")
-        print(f"Search time: {elapsed_time:.5f} seconds")
-        print(f"Memory usage estimate: {memory_usage} bytes")
-        print(f"Expanded nodes: {self._expanded}")
-        print(f"Total visited positions: {len(self._visitedlist)}")
+        print(f"SEARCH COMPLETED - METRICS ({self.__class__.__name__}):")
+        print(f"Search time: {self.searchTime:.5f} seconds")
+        print(f"Memory usage: {self.memoryUsage} bytes")
+        print(f"Expanded nodes: {self.expanded}")
+        print(f"Total visited positions: {len(self.visitedPositions)}")
         print("=" * 50 + "\n")
-    
-    def drawExpandedCells(self):
-        """Draw expanded cells on the UI."""
-        import __main__
-        if '_display' in dir(__main__):
-            if 'drawExpandedCells' in dir(__main__._display):
-                __main__._display.drawExpandedCells(self._visitedlist)
-                
-    def final(self, state):
-        """Called at the end of the game."""
-        # Ensure metrics are printed at the end of the game if not already
-        if not self.metrics_printed:
-            self.printMetrics()
 
-class LeftMoveOnlyGhost(SearchGhostAgent):
-    """A ghost that always tries to move left (West) when possible and tracks metrics."""
-    
-    def __init__(self, index):
-        super().__init__(index)
-    
-    def getDistribution(self, state):
-        """Get the distribution over actions."""
-        dist = util.Counter()
-        legalActions = state.getLegalActions(self.index)
-        
-        # Remove STOP action if present
-        if Directions.STOP in legalActions:
-            legalActions.remove(Directions.STOP)
-        
-        # Prefer WEST (left) if possible
-        if Directions.WEST in legalActions:
-            dist[Directions.WEST] = 1.0
-        else:
-            # If we can't move left, pick randomly among other legal actions
-            for action in legalActions:
-                dist[action] = 1.0
-            dist.normalize()
-        
-        return dist
-    
-    def findPathToPacman(self, state):
-        """Simple path that tries to go left whenever possible."""
-        path = []
-        ghostPos = state.getGhostPosition(self.index)
-        pacmanPos = state.getPacmanPosition()
-        
-        # This is a placeholder - in a real implementation, 
-        # you would use your search algorithm here
-        # For the LeftMoveOnlyGhost, we'll just return a simple path
-        legalActions = state.getLegalActions(self.index)
-        if Directions.WEST in legalActions:
-            path.append(Directions.WEST)
-        elif len(legalActions) > 0 and Directions.STOP in legalActions:
-            legalActions.remove(Directions.STOP)
-            if legalActions:
-                path.append(random.choice(legalActions))
-                
-        return path
+    def registerInitialState(self, state):
+        """
+        This is the first time that the agent sees the layout of the game board.
+        Here, we choose a path to Pacman. All of the work is done in this method!
 
-class RightMoveOnlyGhost(SearchGhostAgent):
-    """A ghost that always tries to move right (East) when possible and tracks metrics."""
-    
-    def __init__(self, index):
-        super().__init__(index)
-    
+        state: a GameState object (pacman.py)
+        """
+        if self.searchFunction == None: 
+            raise Exception("No search function provided for SearchGhostAgent")
+        
+        starttime = time.time()
+        
+        # Create a new search problem
+        problem = self.searchType(state, self.index)  # Pass ghost index to the problem
+        
+        # Find a path
+        self.problem = problem
+        self.actions = self.searchFunction(problem)
+
+        # Get metrics
+        totalCost = problem.getCostOfActions(self.actions)
+        self.searchTime = time.time() - starttime
+        self.expanded = problem._expanded if '_expanded' in dir(problem) else 0
+        self.visitedPositions = problem._visitedlist if '_visitedlist' in dir(problem) else []
+        self.memoryUsage = sys.getsizeof(problem._visited) + sys.getsizeof(problem._visitedlist) if '_visited' in dir(problem) else 0
+        
+        # Display results
+        self.displayMetrics()
+        
+        # Initialize action index
+        self.actionIndex = 0
+
     def getDistribution(self, state):
-        """Get the distribution over actions."""
+        """
+        Returns a distribution with 100% probability on the next action in the path.
+        Returns a uniform distribution if there are no more actions.
+
+        state: a GameState object (pacman.py)
+        """
+        # Initialize the search if this is the first call
+        if 'actions' not in dir(self) or 'actionIndex' not in dir(self):
+            self.registerInitialState(state)
+            
+        # Create distribution
         dist = util.Counter()
-        legalActions = state.getLegalActions(self.index)
         
-        # Remove STOP action if present
-        if Directions.STOP in legalActions:
-            legalActions.remove(Directions.STOP)
+        # Get next action if available
+        if self.actionIndex < len(self.actions):
+            nextAction = self.actions[self.actionIndex]
+            self.actionIndex += 1
+            
+            # Check if the action is legal
+            if nextAction in state.getLegalActions(self.index):
+                dist[nextAction] = 1.0
+                self.visited.append(state.getGhostPosition(self.index))
+                import __main__
+                if hasattr(__main__, '_display'):
+                    __main__._display.drawExpandedCells(self.visited)
+                return dist
+            
+
+
+class GhostPositionSearchProblem(search.SearchProblem):
+    """
+    A search problem for a ghost to find Pacman.
+    The state space consists of (x,y) positions in a pacman game.
+    """
+
+    def __init__(self, gameState, ghostIndex, costFn=lambda x: 1, goal=None, start=None, warn=True, visualize=True):
+        """
+        Stores the start and goal.
+        """
+        self.walls = gameState.getWalls()
+        self.ghostIndex = ghostIndex
+        self.startState = gameState.getGhostPosition(ghostIndex)
+        if start != None: self.startState = start
+        self.goal = gameState.getPacmanPosition()
+        if goal != None: self.goal = goal
+        self.costFn = costFn
+        self.visualize = visualize
         
-        # Prefer EAST (right) if possible
-        if Directions.EAST in legalActions:
-            dist[Directions.EAST] = 1.0
-        else:
-            # If we can't move right, pick randomly among other legal actions
-            for action in legalActions:
-                dist[action] = 1.0
-            dist.normalize()
-        
-        return dist
-    
-    def findPathToPacman(self, state):
-        """Simple path that tries to go right whenever possible."""
-        path = []
-        ghostPos = state.getGhostPosition(self.index)
-        pacmanPos = state.getPacmanPosition()
-        
-        # This is a placeholder - in a real implementation, 
-        # you would use your search algorithm here
-        # For the RightMoveOnlyGhost, we'll just return a simple path
-        legalActions = state.getLegalActions(self.index)
-        if Directions.EAST in legalActions:
-            path.append(Directions.EAST)
-        elif len(legalActions) > 0 and Directions.STOP in legalActions:
-            legalActions.remove(Directions.STOP)
-            if legalActions:
-                path.append(random.choice(legalActions))
-                
-        return path
+        # For display purposes
+        self._visited, self._visitedlist, self._expanded = {}, [], 0
+
+    def getStartState(self):
+        return self.startState
+
+    def isGoalState(self, state):
+        isGoal = state == self.goal
+        return isGoal
+
+    def getSuccessors(self, state):
+        """
+        Returns successor states, the actions they require, and a cost of 1.
+        """
+        successors = []
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x, y = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextState = (nextx, nexty)
+                cost = self.costFn(nextState)
+                successors.append((nextState, action, cost))
+
+        # Bookkeeping for display purposes
+        self._expanded += 1
+        if state not in self._visited:
+            self._visited[state] = True
+            self._visitedlist.append(state)
+
+        return successors
+
+    def getCostOfActions(self, actions):
+        """
+        Returns the cost of a particular sequence of actions.
+        """
+        if actions == None: return 999999
+        x, y = self.getStartState()
+        cost = 0
+        for action in actions:
+            dx, dy = Actions.directionToVector(action)
+            x, y = int(x + dx), int(y + dy)
+            if self.walls[x][y]: return 999999
+            cost += self.costFn((x, y))
+        return cost
+
+# Specific ghost implementations
+class BFSGhost(SearchGhostAgent):
+    """
+    Ghost agent that uses BFS to find Pacman.
+    """
+    def __init__(self, index):
+        SearchGhostAgent.__init__(self, index, fn='bfs')
+
+class DFSGhost(SearchGhostAgent):
+    """
+    Ghost agent that uses DFS to find Pacman.
+    """
+    def __init__(self, index):
+        SearchGhostAgent.__init__(self, index, fn='dfs')
+
+class UCSGhost(SearchGhostAgent):
+    """
+    Ghost agent that uses UCS to find Pacman.
+    """
+    def __init__(self, index):
+        SearchGhostAgent.__init__(self, index, fn='ucs')
+
+class AStarGhost(SearchGhostAgent):
+    """
+    Ghost agent that uses A* with Manhattan heuristic to find Pacman.
+    """
+    def __init__(self, index):
+        SearchGhostAgent.__init__(self, index, fn='astar', heuristic='manhattanHeuristic')
