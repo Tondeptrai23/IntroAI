@@ -72,6 +72,7 @@ class SearchGhostAgent(GhostAgent):
         self.expanded = 0
         self.visitedPositions = []
         self.visited = []
+        self.goal = None
 
     def displayMetrics(self):
         """
@@ -102,6 +103,7 @@ class SearchGhostAgent(GhostAgent):
         
         # Find a path
         self.problem = problem
+        self.goal = problem.goal
         self.actions = self.searchFunction(problem)
 
         # Get metrics
@@ -128,9 +130,24 @@ class SearchGhostAgent(GhostAgent):
         if 'actions' not in dir(self) or 'actionIndex' not in dir(self):
             self.registerInitialState(state)
             
+        currentPacman = state.getPacmanPosition()
+        if currentPacman != self.goal:
+            # Pac‑man moved! replan from our current ghost pos
+            ghostPos = state.getGhostPosition(self.index)
+            problem = self.searchType(
+                state,
+                self.index,
+                goal=currentPacman,
+                start=ghostPos
+            )
+            self.goal = currentPacman
+            self.actions = self.searchFunction(problem)
+            self.visitedPositions = problem._visitedlist
+            self.actionIndex = 0
+        
         # Create distribution
         dist = util.Counter()
-        
+
         # Get next action if available
         if self.actionIndex < len(self.actions):
             nextAction = self.actions[self.actionIndex]
@@ -144,7 +161,14 @@ class SearchGhostAgent(GhostAgent):
                 if hasattr(__main__, '_display'):
                     __main__._display.drawExpandedCells(self.visited)
                 return dist
-            
+
+        for a in state.getLegalActions(self.index):
+            self.visited.append(state.getGhostPosition(self.index))
+            import __main__
+            if hasattr(__main__, '_display'):
+                __main__._display.drawExpandedCells(self.visited)
+            dist[a] += 1.0
+        return dist
 
 
 class GhostPositionSearchProblem(search.SearchProblem):

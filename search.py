@@ -74,53 +74,42 @@ def tinyMazeSearch(problem):
 
 def depthFirstSearch(problem):
     """
-    Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
+    Search the deepest nodes in the search tree first (graph‐search DFS).
+    Returns a list of actions that reaches the goal, or [] if no solution.
     """
-
     from util import Stack
 
-    # stackXY: ((x,y),[path]) #
-    stackXY = Stack()
+    # frontier: stack of (state, path_to_state)
+    frontier = Stack()
+    explored = set()
 
-    visited = [] # Visited states
-    path = [] # Every state keeps it's path from the starting state
-
-    # Check if initial state is goal state #
-    if problem.isGoalState(problem.getStartState()):
+    # trivial case: start is goal
+    start = problem.getStartState()
+    if problem.isGoalState(start):
         return []
 
-    # Start from the beginning and find a solution, path is an empty list #
-    stackXY.push((problem.getStartState(),[]))
+    # initialize frontier with start state and empty path
+    frontier.push((start, []))
 
-    while(True):
+    while not frontier.isEmpty():
+        current_state, path = frontier.pop()
 
-        # Terminate condition: can't find solution #
-        if stackXY.isEmpty():
-            return []
+        # skip if we've already expanded this state
+        if current_state in explored:
+            continue
+        explored.add(current_state)
 
-        # Get informations of current state #
-        xy,path = stackXY.pop() # Take position and path
-        visited.append(xy)
-
-        # Terminate condition: reach goal #
-        if problem.isGoalState(xy):
+        if problem.isGoalState(current_state):
             return path
 
-        # Get successors of current state #
-        succ = problem.getSuccessors(xy)
+        # expand successors
+        for successor, action, step_cost in problem.getSuccessors(current_state):
+            if successor not in explored:
+                new_path = path + [action]
+                frontier.push((successor, new_path))
 
-        # Add new states in stack and fix their path #
-        if succ:
-            for item in succ:
-                if item[0] not in visited:
-                    newPath = path + [item[1]] # Calculate new path
-                    stackXY.push((item[0],newPath))
+    return []
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
