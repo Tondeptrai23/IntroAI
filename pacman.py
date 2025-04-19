@@ -647,7 +647,7 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
 
         # ================================= CHOOSE GHOST HERE ==========================================
         import searchAgents
-        ghosts = [searchAgents.DFSGhost(1), searchAgents.UCSGhost(2)]
+        ghosts = [searchAgents.DFSGhost(1), searchAgents.BFSGhost(2), searchAgents.UCSGhost(3), searchAgents.AStarGhost(4)]
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
 
         game.run()
