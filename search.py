@@ -140,21 +140,20 @@ def aStarSearch(problem: SearchProblem, heuristic):
         return problem.getSuccessors(problem.getStartState())
 
     startPosition = problem.getStartState()
-    pacmanPosition = problem.goal  
 
     frontier = util.PriorityQueue()
     frontier.push((startPosition, [], 0), heuristic(startPosition, problem))
-    visited = set()
+    explored = set()
 
     while not frontier.isEmpty():
         currentPosition, path, cost = frontier.pop()
 
         if problem.isGoalState(currentPosition):
             return path
-        if currentPosition in visited:
+        if currentPosition in explored:
             continue
 
-        visited.add(currentPosition)
+        explored.add(currentPosition)
 
         legalActions = problem.getSuccessors(currentPosition)
         for successor, action, step_cost in legalActions:
