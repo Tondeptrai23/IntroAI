@@ -568,6 +568,23 @@ class PacmanGraphics:
             if self.frameTime < 0:
                 refresh()
 
+    def drawPath(self, cells):
+        """
+        Draws an overlay of expanded grid positions for search agents
+        """
+        n = float(len(cells))
+        baseColor = [1.0, 0.0, 0.0]
+
+        for k, cell in enumerate(cells):
+            screenPos = self.to_screen( cell)
+            block = square(screenPos,
+                     0.5 * self.gridSize,
+                     color = formatColor(*[c for c in baseColor]),
+                     filled = 1, behind=2)
+            self.expandedCells.append(block)
+            if self.frameTime < 0:
+                refresh()
+
     def clearExpandedCells(self):
         if 'expandedCells' in dir(self) and len(self.expandedCells) > 0:
             for cell in self.expandedCells:

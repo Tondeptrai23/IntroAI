@@ -112,6 +112,9 @@ class SearchGhostAgent(GhostAgent):
         self.expanded = problem._expanded if '_expanded' in dir(problem) else 0
         self.visitedPositions = problem._visitedlist if '_visitedlist' in dir(problem) else []
         self.memoryUsage = sys.getsizeof(problem._visited) + sys.getsizeof(problem._visitedlist) if '_visited' in dir(problem) else 0
+        import __main__
+        if hasattr(__main__, '_display'):
+            __main__._display.drawExpandedCells(problem._visitedlist)
         
         # Display results
         self.displayMetrics()
@@ -159,14 +162,14 @@ class SearchGhostAgent(GhostAgent):
                 self.visited.append(state.getGhostPosition(self.index))
                 import __main__
                 if hasattr(__main__, '_display'):
-                    __main__._display.drawExpandedCells(self.visited)
+                    __main__._display.drawPath(self.visited)
                 return dist
 
         for a in state.getLegalActions(self.index):
             self.visited.append(state.getGhostPosition(self.index))
             import __main__
             if hasattr(__main__, '_display'):
-                __main__._display.drawExpandedCells(self.visited)
+                __main__._display.drawPath(self.visited)
             dist[a] += 1.0
         return dist
 
