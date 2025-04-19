@@ -144,7 +144,7 @@ class InfoPane:
 
 
 class PacmanGraphics:
-    def __init__(self, zoom=1.0, frameTime=0.0, capture=False):
+    def __init__(self, zoom=1.0, frameTime=0.0, capture=False, expandedCells=False):
         self.have_window = 0
         self.currentGhostImages = {}
         self.pacmanImage = None
@@ -152,6 +152,7 @@ class PacmanGraphics:
         self.gridSize = DEFAULT_GRID_SIZE * zoom
         self.capture = capture
         self.frameTime = frameTime
+        self.expandedCells = expandedCells
 
     def checkNullDisplay(self):
         return False
@@ -382,6 +383,9 @@ class PacmanGraphics:
         new_x, new_y = self.to_screen(self.getPosition(ghost))
         delta = new_x - old_x, new_y - old_y
 
+        trailColor = ghostColor
+        line((old_x, old_y), (new_x, new_y), trailColor, 2)
+
         for ghostImagePart in ghostImageParts:
             move_by(ghostImagePart, delta)
         refresh()
@@ -553,6 +557,8 @@ class PacmanGraphics:
         """
         Draws an overlay of expanded grid positions for search agents
         """
+        if (self.expandedCells == False): 
+            return
         n = float(len(cells))
         baseColor = [1.0, 1.0, 0.0]
         # self.clearExpandedCells()
@@ -563,23 +569,6 @@ class PacmanGraphics:
             block = square(screenPos,
                      0.5 * self.gridSize,
                      color = cellColor,
-                     filled = 1, behind=2)
-            self.expandedCells.append(block)
-            if self.frameTime < 0:
-                refresh()
-
-    def drawPath(self, cells):
-        """
-        Draws an overlay of expanded grid positions for search agents
-        """
-        n = float(len(cells))
-        baseColor = [1.0, 0.0, 0.0]
-
-        for k, cell in enumerate(cells):
-            screenPos = self.to_screen( cell)
-            block = square(screenPos,
-                     0.5 * self.gridSize,
-                     color = formatColor(*[c for c in baseColor]),
                      filled = 1, behind=2)
             self.expandedCells.append(block)
             if self.frameTime < 0:

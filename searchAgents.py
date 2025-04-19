@@ -71,7 +71,6 @@ class SearchGhostAgent(GhostAgent):
         self.memoryUsage = 0
         self.expanded = 0
         self.visitedPositions = []
-        self.visited = []
         self.goal = None
 
     def displayMetrics(self):
@@ -159,17 +158,9 @@ class SearchGhostAgent(GhostAgent):
             # Check if the action is legal
             if nextAction in state.getLegalActions(self.index):
                 dist[nextAction] = 1.0
-                self.visited.append(state.getGhostPosition(self.index))
-                import __main__
-                if hasattr(__main__, '_display'):
-                    __main__._display.drawPath(self.visited)
                 return dist
 
         for a in state.getLegalActions(self.index):
-            self.visited.append(state.getGhostPosition(self.index))
-            import __main__
-            if hasattr(__main__, '_display'):
-                __main__._display.drawPath(self.visited)
             dist[a] += 1.0
         return dist
 
