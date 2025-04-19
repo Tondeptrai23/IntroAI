@@ -54,7 +54,6 @@ GHOST_VEC_COLORS = map(colorToVector, GHOST_COLORS)
 
 PACMAN_COLOR = formatColor(255.0/255.0,255.0/255.0,61.0/255)
 PACMAN_SCALE = 0.5
-#pacman_speed = 0.25
 
 # Food
 FOOD_COLOR = formatColor(1,1,1)
@@ -308,7 +307,7 @@ class PacmanGraphics:
             start = time.time()
             fx, fy = self.getPosition(prevPacman)
             px, py = self.getPosition(pacman)
-            frames = 4.0
+            frames = 8.0
             for i in range(1,int(frames) + 1):
                 pos = px*i/frames + fx*(frames-i)/frames, py*i/frames + fy*(frames-i)/frames
                 self.movePacman(pos, self.getDirection(pacman), image)
