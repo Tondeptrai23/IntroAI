@@ -382,7 +382,7 @@ class GhostRules:
     """
     These functions dictate how ghosts interact with their environment.
     """
-    GHOST_SPEED=0.5
+    GHOST_SPEED=1
     def getLegalActions( state, ghostIndex ):
         """
         Ghosts cannot stop, and cannot turn around unless they
@@ -518,11 +518,13 @@ def readCommand( argv ):
     parser.add_option('-x', '--numTraining', dest='numTraining', type='int',
                       help=default('How many episodes are training (suppresses output)'), default=0)
     parser.add_option('--frameTime', dest='frameTime', type='float',
-                      help=default('Time to delay between frames; <0 means keyboard'), default=0.1)
+                      help=default('Time to delay between frames; <0 means keyboard'), default=0.2)
     parser.add_option('-c', '--catchExceptions', action='store_true', dest='catchExceptions',
                       help='Turns on exception handling and timeouts during games', default=False)
     parser.add_option('--timeout', dest='timeout', type='int',
                       help=default('Maximum length of time an agent can spend computing in a single game'), default=30)
+    parser.add_option('--expand', dest='expand', action='store_true',
+                      help=default('Expand the search tree'), default=False)
 
     options, otherjunk = parser.parse_args(argv)
     if len(otherjunk) != 0:
@@ -565,7 +567,7 @@ def readCommand( argv ):
         args['display'] = textDisplay.PacmanGraphics()
     else:
         import graphicsDisplay
-        args['display'] = graphicsDisplay.PacmanGraphics(options.zoom, frameTime = options.frameTime)
+        args['display'] = graphicsDisplay.PacmanGraphics(options.zoom, frameTime = options.frameTime, expandedCells = options.expand)
     args['numGames'] = options.numGames
     args['record'] = options.record
     args['catchExceptions'] = options.catchExceptions
@@ -645,7 +647,7 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
 
         # ================================= CHOOSE GHOST HERE ==========================================
         import searchAgents
-        ghosts = [searchAgents.LeftMoveOnlyGhost(1), searchAgents.RightMoveOnlyGhost(2)]
+        ghosts = [searchAgents.DFSGhost(1)]
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
 
         game.run()

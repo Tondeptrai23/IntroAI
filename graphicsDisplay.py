@@ -54,7 +54,6 @@ GHOST_VEC_COLORS = map(colorToVector, GHOST_COLORS)
 
 PACMAN_COLOR = formatColor(255.0/255.0,255.0/255.0,61.0/255)
 PACMAN_SCALE = 0.5
-#pacman_speed = 0.25
 
 # Food
 FOOD_COLOR = formatColor(1,1,1)
@@ -145,7 +144,7 @@ class InfoPane:
 
 
 class PacmanGraphics:
-    def __init__(self, zoom=1.0, frameTime=0.0, capture=False):
+    def __init__(self, zoom=1.0, frameTime=0.0, capture=False, expandedCells=False):
         self.have_window = 0
         self.currentGhostImages = {}
         self.pacmanImage = None
@@ -153,6 +152,7 @@ class PacmanGraphics:
         self.gridSize = DEFAULT_GRID_SIZE * zoom
         self.capture = capture
         self.frameTime = frameTime
+        self.expandedCells = expandedCells
 
     def checkNullDisplay(self):
         return False
@@ -308,7 +308,7 @@ class PacmanGraphics:
             start = time.time()
             fx, fy = self.getPosition(prevPacman)
             px, py = self.getPosition(pacman)
-            frames = 4.0
+            frames = 8.0
             for i in range(1,int(frames) + 1):
                 pos = px*i/frames + fx*(frames-i)/frames, py*i/frames + fy*(frames-i)/frames
                 self.movePacman(pos, self.getDirection(pacman), image)
@@ -382,6 +382,9 @@ class PacmanGraphics:
         old_x, old_y = self.to_screen(self.getPosition(prevGhost))
         new_x, new_y = self.to_screen(self.getPosition(ghost))
         delta = new_x - old_x, new_y - old_y
+
+        trailColor = ghostColor
+        line((old_x, old_y), (new_x, new_y), trailColor, 2)
 
         for ghostImagePart in ghostImageParts:
             move_by(ghostImagePart, delta)
@@ -554,6 +557,8 @@ class PacmanGraphics:
         """
         Draws an overlay of expanded grid positions for search agents
         """
+        if (self.expandedCells == False): 
+            return
         n = float(len(cells))
         baseColor = [1.0, 1.0, 0.0]
         # self.clearExpandedCells()
