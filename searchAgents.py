@@ -65,7 +65,11 @@ class SearchGhostAgent(GhostAgent):
             raise AttributeError(prob + ' is not a search problem type in SearchAgents.py.')
         self.searchType = globals()[prob]
         print(f'[SearchGhostAgent] using problem type {prob}')
-        
+
+        if heuristic not in dir(search):
+            raise AttributeError(heuristic + ' is not a heuristic function in search.py.')
+        self.heuristicFunc = getattr(search, heuristic)
+
         # For metrics tracking
         self.searchTime = 0
         self.memoryUsage = 0
@@ -103,7 +107,7 @@ class SearchGhostAgent(GhostAgent):
         # Find a path
         self.problem = problem
         self.goal = problem.goal
-        self.actions = self.searchFunction(problem)
+        self.actions = self.searchFunction(problem, self.heuristicFunc)
 
         # Get metrics
         totalCost = problem.getCostOfActions(self.actions)
@@ -143,7 +147,7 @@ class SearchGhostAgent(GhostAgent):
                 start=ghostPos
             )
             self.goal = currentPacman
-            self.actions = self.searchFunction(problem)
+            self.actions = self.searchFunction(problem, self.heuristicFunc)
             self.visitedPositions = problem._visitedlist
             self.actionIndex = 0
         
