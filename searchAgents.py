@@ -58,8 +58,21 @@ class SearchGhostAgent(GhostAgent):
         if fn not in dir(search):
             raise AttributeError(fn + ' is not a search function in search.py.')
         func = getattr(search, fn)
-        self.searchFunction = func
+        if 'heuristic' not in func.__code__.co_varnames:
+            print('[SearchAgent] using function ' + fn)
+            self.searchFunction = func
+        else:
+            if heuristic in globals().keys():
+                heur = globals()[heuristic]
+            elif heuristic in dir(search):
+                heur = getattr(search, heuristic)
+            else:
+                raise AttributeError(heuristic + ' is not a function in searchAgents.py or search.py.')
+            print('[SearchAgent] using function %s and heuristic %s' % (fn, heuristic))
+            # Note: this bit of Python trickery combines the search algorithm and the heuristic
+            self.searchFunction = lambda x: func(x, heuristic=heur)
 
+        
         # Get the search problem type from the name
         if prob not in globals().keys() or not prob.endswith('Problem'):
             raise AttributeError(prob + ' is not a search problem type in SearchAgents.py.')
@@ -107,7 +120,7 @@ class SearchGhostAgent(GhostAgent):
         # Find a path
         self.problem = problem
         self.goal = problem.goal
-        self.actions = self.searchFunction(problem, self.heuristicFunc)
+        self.actions = self.searchFunction(problem)
 
         # Get metrics
         totalCost = problem.getCostOfActions(self.actions)
@@ -147,7 +160,7 @@ class SearchGhostAgent(GhostAgent):
                 start=ghostPos
             )
             self.goal = currentPacman
-            self.actions = self.searchFunction(problem, self.heuristicFunc)
+            self.actions = self.searchFunction(problem)
             self.visitedPositions = problem._visitedlist
             self.actionIndex = 0
         
