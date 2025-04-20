@@ -304,18 +304,18 @@ class UCSGhost(SearchGhostAgent):
     Ghost agent that uses UCS to find Pacman.
     """
     def __init__(self, index):
-        def costFunction(pos):
-            """Higher costs for junctions, lower for corridors"""
-            x, y = pos
+        def costFunction(position):
+            x, y = position
             walls = self.problem.walls
-            # Count available moves (non-wall neighbors)
-            available_moves = sum(1 for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)] 
-                                if not walls[x+dx][y+dy])
+            # Count the number of neighboring cells that are not walls
+            open_count = 0
+            for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                nx, ny = x + dx, y + dy
+                if nx >= 0 and ny >= 0 and nx < walls.width and ny < walls.height and not walls[nx][ny]:
+                    open_count += 1
             
-            if available_moves > 2:  # It's a junction
-                return 1.5
-            else:
-                return 0.8  
+            # Assign a higher cost to cells with fewer open neighbors
+            return 4.0 - open_count
 
         SearchGhostAgent.__init__(self, index, fn='ucs', costFn=costFunction)
 
