@@ -102,7 +102,7 @@ class SearchGhostAgent(GhostAgent):
         print(f"Search time: {self.searchTime:.5f} seconds")
         print(f"Memory usage: {self.memoryUsage} bytes")
         print(f"Expanded nodes: {self.expanded}")
-        print(f"Total visited positions: {len(self.visitedPositions)}")
+        # print(f"Total visited positions: {len(self.visitedPositions)}")
         print("=" * 50 + "\n")
 
     def registerInitialState(self, state):

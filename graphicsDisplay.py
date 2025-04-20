@@ -94,6 +94,7 @@ class InfoPane:
         return x,y
 
     def drawPane(self):
+        return
         self.scoreText = text( self.toScreen(0, 0  ), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
     def initializeGhostDistances(self, distances):
@@ -110,6 +111,7 @@ class InfoPane:
             self.ghostDistanceText.append(t)
 
     def updateScore(self, score):
+        return
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
     def setTeam(self, isBlue):
