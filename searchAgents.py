@@ -200,7 +200,7 @@ class SearchGhostAgent(GhostAgent):
                 # Found a non-conflicting action
                 dist[action] = 1.0
                 SearchGhostAgent.ghost_planned_positions[self.index] = next_pos
-                print(f"Ghost {self.index} takes fallback non-conflicting action {action}")
+                # print(f"Ghost {self.index} takes fallback non-conflicting action {action}")
                 return dist
 
         for a in state.getLegalActions(self.index):
@@ -227,7 +227,7 @@ class GhostPositionSearchProblem(search.SearchProblem):
     def __init__(self, gameState, ghostIndex, costFn=lambda x: 1, goal=None, start=None, warn=True, visualize=True):
         """
         Stores the start and goal.
-        """
+        """ 
         self.walls = gameState.getWalls()
         self.ghostIndex = ghostIndex
         self.startState = gameState.getGhostPosition(ghostIndex)

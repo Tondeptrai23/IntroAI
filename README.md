@@ -33,7 +33,7 @@ pip install -r requirements.txt
 ### Run the Game
 
 ```bash
-python pacman.py -l <layout> -z <zoom_level> <args>
+python main.py -l <layout> -z <zoom_level> <args>
 ```
 
 - `layout`: The layout of the game. You can choose from the available layouts in the `layouts` folder.
@@ -42,14 +42,14 @@ python pacman.py -l <layout> -z <zoom_level> <args>
 
 ### Run a specific agent
 
-Edit the `pacman.py` at line 650-654 (uncomment needed agent). You can choose from the following agents:
+Edit the `main.py` file at line 650-654 (uncomment needed agent). You can choose from the following agents:
 
 - `DFSGhost(index)`: A ghost that uses depth-first search to find the shortest path to Pacman.
 - `BFSGhost(index)`: A ghost that uses breadth-first search to find the shortest path to Pacman.
 - `AStarGhost(index)`: A ghost that uses A\* search to find the shortest path to Pacman.
 - `UCSGhost(index)`: A ghost that uses UCS to find the shortest path to Pacman.
 
-We've prepared the code for choosing agent in `pacman.py` file. You can uncomment the agent you want to run.
+We've prepared the code for choosing agent in `main.py` file. You can uncomment the agent you want to run.
 
 ```py
     # ghosts = [searchAgents.BFSGhost(1)] # BFS
