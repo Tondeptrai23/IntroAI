@@ -145,26 +145,6 @@ def uniformCostSearch(problem):
     from util import PriorityQueue 
     from util import manhattanDistance
 
-    # def customCostFunction(actions, problem):
-    #     """
-    #     Custom cost function that calculates the Manhattan distance between Pacman
-    #     and the ghost for a sequence of actions.
-    #     """
-    #     current_state = problem.getStartState()
-    #     total_cost = 0
-
-    #     for action in actions:
-    #         successors = problem.getSuccessors(current_state)
-    #         for successor, successor_action, step_cost in successors:
-    #             if successor_action == action:
-    #                 current_state = successor
-    #                 total_cost += manhattanDistance(current_state, problem.goal)
-    #                 break
-
-    #     return total_cost
-
-    # problem.getCostOfActions = lambda actions: customCostFunction(actions, problem)
-
     # frontier: priority queue of (state, path, cost)
     frontier = PriorityQueue()
     explored = set()
