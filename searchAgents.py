@@ -52,10 +52,11 @@ class SearchGhostAgent(GhostAgent):
     """
     ghost_planned_positions = {}
 
-    def __init__(self, index, fn='depthFirstSearch', prob='GhostPositionSearchProblem', heuristic='nullHeuristic'):
+    def __init__(self, index, fn='depthFirstSearch', prob='GhostPositionSearchProblem', heuristic='nullHeuristic', costFn=lambda x: 1):
         GhostAgent.__init__(self, index)
         
         self.ghost_planned_positions = {}
+        self.costFn = costFn
 
         # Get the search function from the name and heuristic
         if fn not in dir(search):
@@ -80,7 +81,6 @@ class SearchGhostAgent(GhostAgent):
         if prob not in globals().keys() or not prob.endswith('Problem'):
             raise AttributeError(prob + ' is not a search problem type in SearchAgents.py.')
         self.searchType = globals()[prob]
-        print(f'[SearchGhostAgent] using problem type {prob}')
 
         if heuristic not in dir(search):
             raise AttributeError(heuristic + ' is not a heuristic function in search.py.')
@@ -118,8 +118,7 @@ class SearchGhostAgent(GhostAgent):
         starttime = time.time()
         
         # Create a new search problem
-        problem = self.searchType(state, self.index)  # Pass ghost index to the problem
-        
+        problem = self.searchType(state, self.index, self.costFn)  # Pass ghost index to the problem
         # Find a path
         self.problem = problem
         self.goal = problem.goal
@@ -305,7 +304,9 @@ class UCSGhost(SearchGhostAgent):
     Ghost agent that uses UCS to find Pacman.
     """
     def __init__(self, index):
-        SearchGhostAgent.__init__(self, index, fn='ucs')
+        def costFunction(position):
+
+        SearchGhostAgent.__init__(self, index, fn='ucs', costFn=costFunction)
 
 class AStarGhost(SearchGhostAgent):
     """
