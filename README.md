@@ -22,7 +22,7 @@ Make sure that the layout is valid. If you are running 1 agent, only 1 spawn poi
 
 ## Run the Project
 
-To run the project, you need to have Python 3 installed on your machine. You can download it from [python.org](https://www.python.org/downloads/).
+To run the project, you need to have Python 3 and `pip` installed on your machine. You can download it from [python.org](https://www.python.org/downloads/).
 
 ### Install Dependencies
 
@@ -48,6 +48,16 @@ Edit the `pacman.py` at line 650-654 (uncomment needed agent). You can choose fr
 - `BFSGhost(index)`: A ghost that uses breadth-first search to find the shortest path to Pacman.
 - `AStarGhost(index)`: A ghost that uses A\* search to find the shortest path to Pacman.
 - `UCSGhost(index)`: A ghost that uses UCS to find the shortest path to Pacman.
+
+We've prepared the code for choosing agent in `pacman.py` file. You can uncomment the agent you want to run.
+
+```py
+    # ghosts = [searchAgents.BFSGhost(1)] # BFS
+    # ghosts = [searchAgents.DFSGhost(1)] # DFS
+    # ghosts = [searchAgents.UCSGhost(1)] # UCS
+    # ghosts = [searchAgents.AStarGhost(1)] # A*
+    ghosts = [searchAgents.BFSGhost(1), searchAgents.DFSGhost(2), searchAgents.UCSGhost(3), searchAgents.AStarGhost(4)] # Run all agents
+```
 
 ## Attribution
 
