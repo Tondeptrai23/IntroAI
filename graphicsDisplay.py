@@ -23,7 +23,7 @@ from game import Directions
 # Most code by Dan Klein and John Denero written or rewritten for cs188, UC Berkeley.
 # Some code from a Pacman implementation by LiveWires, and used / modified with permission.
 
-DEFAULT_GRID_SIZE = 30.0
+DEFAULT_GRID_SIZE = 20.0
 INFO_PANE_HEIGHT = 35
 BACKGROUND_COLOR = formatColor(0,0,0)
 WALL_COLOR = formatColor(0.0/255.0, 51.0/255.0, 255.0/255.0)
@@ -94,6 +94,7 @@ class InfoPane:
         return x,y
 
     def drawPane(self):
+        return
         self.scoreText = text( self.toScreen(0, 0  ), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
     def initializeGhostDistances(self, distances):
@@ -110,6 +111,7 @@ class InfoPane:
             self.ghostDistanceText.append(t)
 
     def updateScore(self, score):
+        return
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
     def setTeam(self, isBlue):

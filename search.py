@@ -53,7 +53,7 @@ class SearchProblem:
         util.raiseNotDefined()
 
     def getCostOfActions(self, actions):
-        """
+        """ 
          actions: A list of actions to take
 
         This method returns the total cost of a particular sequence of actions.
@@ -107,7 +107,6 @@ def depthFirstSearch(problem):
             if successor not in explored:
                 new_path = path + [action]
                 frontier.push((successor, new_path))
-
     return []
 
 
@@ -143,8 +142,8 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    
     from util import PriorityQueue 
+    from util import manhattanDistance
 
     # frontier: priority queue of (state, path, cost)
     frontier = PriorityQueue()

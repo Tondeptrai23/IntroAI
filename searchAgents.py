@@ -52,10 +52,11 @@ class SearchGhostAgent(GhostAgent):
     """
     ghost_planned_positions = {}
 
-    def __init__(self, index, fn='depthFirstSearch', prob='GhostPositionSearchProblem', heuristic='nullHeuristic'):
+    def __init__(self, index, fn='depthFirstSearch', prob='GhostPositionSearchProblem', heuristic='nullHeuristic', costFn=lambda x: 1):
         GhostAgent.__init__(self, index)
         
         self.ghost_planned_positions = {}
+        self.costFn = costFn
 
         # Get the search function from the name and heuristic
         if fn not in dir(search):
@@ -80,7 +81,6 @@ class SearchGhostAgent(GhostAgent):
         if prob not in globals().keys() or not prob.endswith('Problem'):
             raise AttributeError(prob + ' is not a search problem type in SearchAgents.py.')
         self.searchType = globals()[prob]
-        print(f'[SearchGhostAgent] using problem type {prob}')
 
         if heuristic not in dir(search):
             raise AttributeError(heuristic + ' is not a heuristic function in search.py.')
@@ -102,7 +102,7 @@ class SearchGhostAgent(GhostAgent):
         print(f"Search time: {self.searchTime:.5f} seconds")
         print(f"Memory usage: {self.memoryUsage} bytes")
         print(f"Expanded nodes: {self.expanded}")
-        print(f"Total visited positions: {len(self.visitedPositions)}")
+        # print(f"Total visited positions: {len(self.visitedPositions)}")
         print("=" * 50 + "\n")
 
     def registerInitialState(self, state):
@@ -118,8 +118,7 @@ class SearchGhostAgent(GhostAgent):
         starttime = time.time()
         
         # Create a new search problem
-        problem = self.searchType(state, self.index)  # Pass ghost index to the problem
-        
+        problem = self.searchType(state, self.index, self.costFn)  # Pass ghost index to the problem
         # Find a path
         self.problem = problem
         self.goal = problem.goal
@@ -201,7 +200,7 @@ class SearchGhostAgent(GhostAgent):
                 # Found a non-conflicting action
                 dist[action] = 1.0
                 SearchGhostAgent.ghost_planned_positions[self.index] = next_pos
-                print(f"Ghost {self.index} takes fallback non-conflicting action {action}")
+                # print(f"Ghost {self.index} takes fallback non-conflicting action {action}")
                 return dist
 
         for a in state.getLegalActions(self.index):
@@ -228,7 +227,7 @@ class GhostPositionSearchProblem(search.SearchProblem):
     def __init__(self, gameState, ghostIndex, costFn=lambda x: 1, goal=None, start=None, warn=True, visualize=True):
         """
         Stores the start and goal.
-        """
+        """ 
         self.walls = gameState.getWalls()
         self.ghostIndex = ghostIndex
         self.startState = gameState.getGhostPosition(ghostIndex)
@@ -254,7 +253,7 @@ class GhostPositionSearchProblem(search.SearchProblem):
         Returns successor states, the actions they require, and a cost of 1.
         """
         successors = []
-        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST, Directions.STOP]:
             x, y = state
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
@@ -305,7 +304,20 @@ class UCSGhost(SearchGhostAgent):
     Ghost agent that uses UCS to find Pacman.
     """
     def __init__(self, index):
-        SearchGhostAgent.__init__(self, index, fn='ucs')
+        def costFunction(position):
+            x, y = position
+            walls = self.problem.walls
+            # Count the number of neighboring cells that are not walls
+            open_count = 0
+            for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                nx, ny = x + dx, y + dy
+                if nx >= 0 and ny >= 0 and nx < walls.width and ny < walls.height and not walls[nx][ny]:
+                    open_count += 1
+            
+            # Assign a higher cost to cells with fewer open neighbors
+            return 4.0 - open_count
+
+        SearchGhostAgent.__init__(self, index, fn='ucs', costFn=costFunction)
 
 class AStarGhost(SearchGhostAgent):
     """

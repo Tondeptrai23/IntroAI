@@ -289,11 +289,11 @@ class ClassicGameRules:
         if state.isLose(): self.lose(state, game)
 
     def win( self, state, game ):
-        if not self.quiet: print( "Pacman emerges victorious! Score: %d" % state.data.score)
+        # if not self.quiet: print( "Pacman emerges victorious! Score: %d" % state.data.score)
         game.gameOver = True
 
     def lose( self, state, game ):
-        if not self.quiet: print( "Pacman died! Score: %d" % state.data.score)
+        # if not self.quiet: print( "Pacman died! Score: %d" % state.data.score)
         game.gameOver = True
 
     def getProgress(self, game):
@@ -492,7 +492,7 @@ def readCommand( argv ):
                       help=default('the number of GAMES to play'), metavar='GAMES', default=1)
     parser.add_option('-l', '--layout', dest='layout',
                       help=default('the LAYOUT_FILE from which to load the map layout'),
-                      metavar='LAYOUT_FILE', default='mediumClassic')
+                      metavar='LAYOUT_FILE', default='originalClassic')
     parser.add_option('-p', '--pacman', dest='pacman',
                       help=default('the agent TYPE in the pacmanAgents module to use'),
                       metavar='TYPE', default='KeyboardAgent')
@@ -642,12 +642,16 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
             gameDisplay = textDisplay.NullGraphics()
             rules.quiet = True
         else:
-            gameDisplay = display
+            gameDisplay = display    # problem.getCostO  fActions = lambda actions: customCostFunction(actions, problem)
             rules.quiet = False
 
         # ================================= CHOOSE GHOST HERE ==========================================
         import searchAgents
-        ghosts = [searchAgents.DFSGhost(1), searchAgents.BFSGhost(2), searchAgents.UCSGhost(3), searchAgents.AStarGhost(4)]
+        # ghosts = [searchAgents.BFSGhost(1)] # BFS
+        # ghosts = [searchAgents.DFSGhost(1)] # DFS
+        # ghosts = [searchAgents.UCSGhost(1)] # UCS
+        # ghosts = [searchAgents.AStarGhost(1)] # A*
+        ghosts = [searchAgents.BFSGhost(1), searchAgents.DFSGhost(2), searchAgents.UCSGhost(3), searchAgents.AStarGhost(4)] # Run all agents
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
 
         game.run()
@@ -665,10 +669,10 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         scores = [game.state.getScore() for game in games]
         wins = [game.state.isWin() for game in games]
         winRate = wins.count(True)/ float(len(wins))
-        print( 'Average Score:', sum(scores) / float(len(scores)))
-        print( 'Scores:       ', ', '.join([str(score) for score in scores]))
-        print( 'Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate))
-        print('Record:       ', ', '.join([ ['Loss', 'Win'][int(w)] for w in wins]))
+        # print( 'Average Score:', sum(scores) / float(len(scores)))
+        # print( 'Scores:       ', ', '.join([str(score) for score in scores]))
+        # print( 'Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate))
+        # print('Record:       ', ', '.join([ ['Loss', 'Win'][int(w)] for w in wins]))
 
     return games
 
