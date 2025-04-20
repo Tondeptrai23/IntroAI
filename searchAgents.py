@@ -305,6 +305,11 @@ class UCSGhost(SearchGhostAgent):
     """
     def __init__(self, index):
         def costFunction(position):
+            pacman_pos = self.problem.goal
+            
+            manhattan_dist = util.manhattanDistance(position, pacman_pos)
+            
+            return manhattan_dist
 
         SearchGhostAgent.__init__(self, index, fn='ucs', costFn=costFunction)
 
