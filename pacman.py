@@ -642,12 +642,16 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
             gameDisplay = textDisplay.NullGraphics()
             rules.quiet = True
         else:
-            gameDisplay = display
+            gameDisplay = display    # problem.getCostO  fActions = lambda actions: customCostFunction(actions, problem)
             rules.quiet = False
 
         # ================================= CHOOSE GHOST HERE ==========================================
         import searchAgents
-        ghosts = [searchAgents.UCSGhost(1)]
+        # ghosts = [searchAgents.BFSGhost(1)] # BFS
+        # ghosts = [searchAgents.DFSGhost(1)] # DFS
+        # ghosts = [searchAgents.UCSGhost(1)] # UCS
+        # ghosts = [searchAgents.AStarGhost(1)] # A*
+        ghosts = [searchAgents.BFSGhost(1), searchAgents.DFSGhost(2), searchAgents.UCSGhost(3), searchAgents.AStarGhost(4)] # Run all agents
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
 
         game.run()

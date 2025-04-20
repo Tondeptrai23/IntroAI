@@ -16,6 +16,10 @@ The layout of the game is represented as a grid, where each cell can be one of t
 
 If you want to add a new layout, you can create a new file in the `layouts` folder with the same format as the existing layouts.
 
+### Warning
+
+Make sure that the layout is valid. If you are running 1 agent, only 1 spawn point should be appeared and so on.
+
 ## Run the Project
 
 To run the project, you need to have Python 3 installed on your machine. You can download it from [python.org](https://www.python.org/downloads/).
@@ -38,7 +42,7 @@ python pacman.py -l <layout> -z <zoom_level> <args>
 
 ### Run a specific agent
 
-Edit the `pacman.py` at line 650. You can choose from the following agents:
+Edit the `pacman.py` at line 650-654 (uncomment needed agent). You can choose from the following agents:
 
 - `DFSGhost(index)`: A ghost that uses depth-first search to find the shortest path to Pacman.
 - `BFSGhost(index)`: A ghost that uses breadth-first search to find the shortest path to Pacman.
