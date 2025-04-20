@@ -50,10 +50,13 @@ class SearchGhostAgent(GhostAgent):
     
     This follows the same pattern as Berkeley's SearchAgent but adapted for ghosts.
     """
+    ghost_planned_positions = {}
 
     def __init__(self, index, fn='depthFirstSearch', prob='GhostPositionSearchProblem', heuristic='nullHeuristic'):
         GhostAgent.__init__(self, index)
         
+        self.ghost_planned_positions = {}
+
         # Get the search function from the name and heuristic
         if fn not in dir(search):
             raise AttributeError(fn + ' is not a search function in search.py.')
@@ -166,20 +169,54 @@ class SearchGhostAgent(GhostAgent):
         
         # Create distribution
         dist = util.Counter()
-
-        # Get next action if available
         if self.actionIndex < len(self.actions):
             nextAction = self.actions[self.actionIndex]
             self.actionIndex += 1
             
-            # Check if the action is legal
+            # Get next action if available
             if nextAction in state.getLegalActions(self.index):
-                dist[nextAction] = 1.0
+                # Calculate next position
+                x, y = state.getGhostPosition(self.index)
+                dx, dy = Actions.directionToVector(nextAction)
+                next_pos = (int(x + dx), int(y + dy))
+                
+                # Check if another ghost is planning to move to this position
+                position_conflict = SearchGhostAgent.checkForPositionConflict(self.index, next_pos)
+
+                if not position_conflict:
+                    # No conflict, proceed with this action
+                    dist[nextAction] = 1.0
+                    SearchGhostAgent.ghost_planned_positions[self.index] = next_pos
+                    return dist
+
+        legal_actions = state.getLegalActions(self.index)
+        for action in legal_actions:
+            x, y = state.getGhostPosition(self.index)
+            dx, dy = Actions.directionToVector(action)
+            next_pos = (int(x + dx), int(y + dy))
+
+            position_conflict = SearchGhostAgent.checkForPositionConflict(self.index, next_pos)
+            
+            if not position_conflict:
+                # Found a non-conflicting action
+                dist[action] = 1.0
+                SearchGhostAgent.ghost_planned_positions[self.index] = next_pos
+                print(f"Ghost {self.index} takes fallback non-conflicting action {action}")
                 return dist
 
         for a in state.getLegalActions(self.index):
-            dist[a] += 1.0
+            dist[a] += 1.0          
+        
         return dist
+    
+    def checkForPositionConflict(ghostIndex, position):
+        """
+        Check if the given position is already planned by another ghost.
+        """
+        for other_idx, other_pos in SearchGhostAgent.ghost_planned_positions.items():
+            if other_idx != ghostIndex and other_pos == position:
+                return True
+        return False
 
 
 class GhostPositionSearchProblem(search.SearchProblem):
@@ -200,6 +237,7 @@ class GhostPositionSearchProblem(search.SearchProblem):
         if goal != None: self.goal = goal
         self.costFn = costFn
         self.visualize = visualize
+        self.otherGhosts = [gameState.getGhostPosition(i) for i in range(1, gameState.getNumAgents()) if i != ghostIndex]
         
         # For display purposes
         self._visited, self._visitedlist, self._expanded = {}, [], 0
