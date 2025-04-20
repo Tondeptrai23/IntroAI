@@ -254,7 +254,7 @@ class GhostPositionSearchProblem(search.SearchProblem):
         Returns successor states, the actions they require, and a cost of 1.
         """
         successors = []
-        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST, Directions.STOP]:
             x, y = state
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
