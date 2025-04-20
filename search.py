@@ -53,7 +53,7 @@ class SearchProblem:
         util.raiseNotDefined()
 
     def getCostOfActions(self, actions):
-        """
+        """ 
          actions: A list of actions to take
 
         This method returns the total cost of a particular sequence of actions.
@@ -107,7 +107,6 @@ def depthFirstSearch(problem):
             if successor not in explored:
                 new_path = path + [action]
                 frontier.push((successor, new_path))
-
     return []
 
 
@@ -143,8 +142,28 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    
     from util import PriorityQueue 
+    from util import manhattanDistance
+
+    def customCostFunction(actions, problem):
+        """
+        Custom cost function that calculates the Manhattan distance between Pacman
+        and the ghost for a sequence of actions.
+        """
+        current_state = problem.getStartState()
+        total_cost = 0
+
+        for action in actions:
+            successors = problem.getSuccessors(current_state)
+            for successor, successor_action, step_cost in successors:
+                if successor_action == action:
+                    current_state = successor
+                    total_cost += manhattanDistance(current_state, problem.goal)
+                    break
+
+        return total_cost
+
+    problem.getCostOfActions = lambda actions: customCostFunction(actions, problem)
 
     # frontier: priority queue of (state, path, cost)
     frontier = PriorityQueue()
